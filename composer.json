@@ -1,0 +1,27 @@
+{
+    "name": "aogg/think-relation",
+    "description": "ThinkPHP6扩展关联关系",
+    "keywords": [
+        "thinkphp",
+        "relation",
+        "orm"
+    ],
+    "homepage": "https://github.com/aogg/composer-think-relation",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "aogg",
+            "email": "aogg@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0",
+        "topthink/framework": "^6.0.0"
+    },
+    "autoload": {
+        "files": [],
+        "psr-4": {
+            "aogg\\think\\relation": "src/"
+        }
+    }
+}
