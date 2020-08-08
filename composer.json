@@ -21,7 +21,7 @@
     "autoload": {
         "files": [],
         "psr-4": {
-            "aogg\\think\\relation": "src/"
+            "aogg\\think\\relation\\": "src/"
         }
     }
 }
