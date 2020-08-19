@@ -29,25 +29,4 @@ trait RelationShip {
 
         return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey, $throughPk);
     }
-
-    /**
-     * HAS MANY 远程关联定义
-     * 支持join的on条件
-     *
-     * @param string $model
-     * @param string $throughModel
-     * @param $modelOn
-     * @param $throughOn
-     * @param string $localKey
-     * @return HasManyThrough
-     */
-    public function hasManyThroughOnFncLocal(string $model, string $throughModel, $modelOn, $throughOn, string $localKey = '')
-    {
-        $localKey   = $localKey ?: $this->getPk();
-
-        return (new HasManyThrough($this, $model, $throughModel, '', '', $localKey, ''))
-            ->setModelOn($modelOn)
-            ->setThroughOn($throughOn)
-            ;
-    }
 }
