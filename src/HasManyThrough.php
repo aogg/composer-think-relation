@@ -10,12 +10,13 @@ namespace aogg\think\relation;
 use Closure;
 use think\db\BaseQuery as Query;
 use \think\helper\Str;
+use think\Model;
 
 class HasManyThrough extends \think\model\relation\HasManyThrough
 {
     /**
      * 定义model关联时候的on条件
-     * 匿名函数需要返回字符串。参数固定（当前model表名，关联关系中第一个model表名，关联关系中第二个model表名），最后参数是query对象
+     * 匿名函数需要返回字符串，需要自己添加and。参数固定（当前model表名，关联关系中第一个model表名，关联关系中第二个model表名），最后参数是query对象
      *
      * @var callable|string
      */
@@ -48,17 +49,29 @@ class HasManyThrough extends \think\model\relation\HasManyThrough
         if (empty($this->baseQuery) && ($this->parent->getData() || $dataBool)) {
             $alias        = (new $this->model)->getTable(); // 关联关系中第一个model的表名，主表
             $throughTable = $this->through->getTable();
-//            $pk           = $this->throughPk;
-//            $throughKey   = $this->throughKey;
+            $pk           = $this->throughPk;
+            $throughKey   = $this->throughKey;
             $modelTable   = $this->parent->getTable(); // 当前model表面
             $fields       = $this->getQueryFields($alias);
 
             $this->query
                 ->field($fields)
                 ->alias($alias)
-                ->join($throughTable, $this->getJoinOnString('through', $this->query, true))
-                ->join($modelTable . ' ' . $this->getParentModelTableAlias(), $this->getJoinOnString('model', $this->query))
+                ->join(
+                    $throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey .
+                    $this->getJoinOnString('through', $this->getQuery())
+                )
+                ->join(
+                    $modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey .
+                    ' and '. $throughTable . '.' . $this->foreignKey . '=' . $this->parent->{$this->localKey}
+                )
             ;
+            $modelWhere = $this->getJoinOnString('model', $this->getQuery());
+            if ($modelWhere) {
+                if (preg_match('/\s*(and|or)(\s+.+)/i', $modelWhere, $matches)) {
+                    $this->getQuery()->whereRaw($matches[2], [], $matches[1]);
+                }
+            }
 
             $this->baseQuery = true;
         }
@@ -78,10 +91,9 @@ class HasManyThrough extends \think\model\relation\HasManyThrough
     public function hasWhere($where = [], $fields = null, $joinType = '', Query $query = null, $groupByBool = true): Query
     {
         $model        = Str::snake(class_basename($this->parent));
-        $this->setParentModelTableAlias($model);
         $throughTable = $this->through->getTable();
-//        $pk           = $this->throughPk;
-//        $throughKey   = $this->throughKey;
+        $pk           = $this->throughPk;
+        $throughKey   = $this->throughKey;
         $modelTable   = (new $this->model)->getTable();
         $whereBool = true;
 
@@ -103,8 +115,16 @@ class HasManyThrough extends \think\model\relation\HasManyThrough
         $query      = $query ?: $this->parent->db()->alias($model);
         /** @var \think\db\Query $query */
 
-        return $query->join($throughTable, $this->getJoinOnString('through-hasWhere', $query), $joinType)
-            ->join($modelTable, $this->getJoinOnString('model-hasWhere', $query, false), $joinType)
+        return $query->join(
+                $throughTable, $throughTable . '.' . $this->foreignKey . '=' . $model . '.' . $this->localKey .
+                $this->getJoinOnString('through', $this->getQuery()),
+                $joinType
+            )
+            ->join(
+                $modelTable, $modelTable . '.' . $throughKey . '=' . $throughTable . '.' . $this->throughPk .
+                $this->getJoinOnString('model', $this->getQuery()),
+                $joinType
+            )
             ->when($softDelete, function ($query) use ($softDelete, $modelTable) {
                 $query->where($modelTable . strstr($softDelete[0], '.'), '=' == $softDelete[1][0] ? $softDelete[1][1] : null);
             })
@@ -122,14 +142,14 @@ class HasManyThrough extends \think\model\relation\HasManyThrough
     /**
      * @return string
      */
-    protected function getJoinOnString($type, $query, $valueBool = true)
+    protected function getJoinOnString($type, $query)
     {
         $throughTable = $this->through->getTable();
         $parentTable   = $this->getParentModelTableAlias(); // 当前model表面
         $modelTable   = (new $this->model)->getTable(); // 关联关系中第一个model的表名，主表
 
-
-        if (in_array($type, ['model', 'model-hasWhere'])) {
+        $string = '';
+        if (in_array($type, ['model'])) {
             $modelOn = $this->getModelOn();
 
             if (!empty($modelOn)) {
@@ -140,13 +160,7 @@ class HasManyThrough extends \think\model\relation\HasManyThrough
                 }
             }
 
-            if (empty($string) && $type === 'model-hasWhere'){
-                goto throughJoin;
-            }else if (empty($string)) {
-                modelJoin:
-                $string = $parentTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey;
-            }
-        }else if (in_array($type, ['through', 'through-hasWhere'])){
+        }else if (in_array($type, ['through'])){
             $throughOn = $this->getThroughOn();
 
             if (!empty($throughOn)) {
@@ -157,15 +171,6 @@ class HasManyThrough extends \think\model\relation\HasManyThrough
                 }
             }
 
-            if (empty($string) && $type === 'through-hasWhere'){
-                goto modelJoin;
-            }else if (empty($string)) {
-                throughJoin:
-                $string = $throughTable . '.' . $this->throughPk . '=' . $modelTable . '.' . $this->throughKey;
-                if ($valueBool) {
-                    $string .= ' and ' . $throughTable . '.' . $this->foreignKey . '='. $this->parent->{$this->localKey};
-                }
-            }
         }
 
         return $string;
