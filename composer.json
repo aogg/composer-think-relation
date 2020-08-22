@@ -16,7 +16,8 @@
     ],
     "require": {
         "php": ">=7.2.0",
-        "topthink/framework": "^6.0.0"
+        "topthink/framework": "^6.0.0",
+        "topthink/think-orm": "^v2.0.27"
     },
     "autoload": {
         "files": [],
