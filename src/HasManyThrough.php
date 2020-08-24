@@ -11,7 +11,8 @@ namespace aogg\think\relation;
 class HasManyThrough extends \think\model\relation\HasManyThrough
 {
     use traits\ThroughRelationHelperTrait,
-        traits\HasManyThroughTrait;
+        traits\HasManyThroughTrait,
+        traits\ThroughRelationActionTrait;
 
 
 }

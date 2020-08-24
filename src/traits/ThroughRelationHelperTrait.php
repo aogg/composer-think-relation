@@ -63,6 +63,9 @@ trait ThroughRelationHelperTrait
         return $this->through->getModel()->newQuery();
     }
 
+    /**
+     * @return \think\db\BaseQuery|\think\db\Query
+     */
     public function getModelNewQuery()
     {
         return $this->getQuery()->getModel()->newQuery();

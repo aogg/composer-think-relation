@@ -11,6 +11,7 @@ use \think\helper\Str;
 class HasOneThrough extends \think\model\relation\HasOneThrough
 {
     use traits\ThroughRelationHelperTrait,
-        traits\HasManyThroughTrait;
+        traits\HasManyThroughTrait,
+        traits\ThroughRelationActionTrait;
 
 }
