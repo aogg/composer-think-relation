@@ -53,12 +53,7 @@ trait HasManyThroughTrait
                     ' and '. $throughTable . '.' . $this->foreignKey . '=' . $this->parent->{$this->localKey}
                 )->where(1)
             ;
-            $modelWhere = $this->getJoinOnString('model', $this->getQuery());
-            if ($modelWhere) {
-                if (preg_match('/\s*(and|or)(\s+.+)/i', $modelWhere, $matches)) {
-                    $this->getQuery()->whereRaw($matches[2], [], $matches[1]);
-                }
-            }
+            $modelWhere = $this->joinOnWhere('model', $this->getQuery());
 
             $this->baseQuery = true;
         }

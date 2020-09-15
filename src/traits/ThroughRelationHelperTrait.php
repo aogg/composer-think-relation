@@ -72,13 +72,31 @@ trait ThroughRelationHelperTrait
     }
 
     /**
+     * 中间表别名
+     * 
+     * @return mixed
+     */
+    public function getThroughTableAlias()
+    {
+        return $this->through->getTable();
+    }
+    protected function joinOnWhere($type, $query)
+    {
+        $modelWhere = $this->getJoinOnString($type, $query);
+        if ($modelWhere) {
+            if (preg_match('/^\s*(and|or)(\s+.+)/i', $modelWhere, $matches)) {
+                $query->whereRaw($matches[2], [], $matches[1]);
+            }
+        }
+    }
+    /**
      * @param $type
      * @param $query
      * @return string
      */
     protected function getJoinOnString($type, $query)
     {
-        $throughTable = $this->through->getTable();
+        $throughTable = $this->getThroughTableAlias();
         $parentTable   = $this->getParentModelTableAlias(); // 当前model表面
         $modelTable   = (new $this->model)->getTable(); // 关联关系中第一个model的表名，主表
 

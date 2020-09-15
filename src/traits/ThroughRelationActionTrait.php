@@ -28,6 +28,7 @@ trait ThroughRelationActionTrait
         $relationObject = $this;
 
         $query = $relationObject->getModelNewQuery()->where($relationObject->getThroughKey(), $throughValue);
+        $relationObject->joinOnWhere('model', $query);
 
         if (isset($moreWhere)) {
             $query->where($moreWhere);
@@ -49,7 +50,10 @@ trait ThroughRelationActionTrait
     {
         $relationObject = $this;
 
-        $query = $relationObject->getThroughNewQuery()->where($relationObject->getOriginForeignKey(), $this->getParent()->{$relationObject->getLocalKey()});
+        $query = $relationObject->getThroughNewQuery()
+            ->alias($relationObject->getThroughTableAlias())
+            ->where($relationObject->getOriginForeignKey(), $this->getParent()->{$relationObject->getLocalKey()});
+        $relationObject->joinOnWhere('through', $query);
 
         if (isset($moreWhere)) {
             $query->where($moreWhere);
