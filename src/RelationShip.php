@@ -80,4 +80,23 @@ trait RelationShip {
 
         return new HasOne($this, $model, $foreignKey, $localKey);
     }
+
+    /**
+     * HAS MANY 关联定义
+     *
+     * @access public
+     * @param  string $model      模型名
+     * @param  string $foreignKey 关联外键       模型名的外键
+     * @param  string $localKey   当前主键
+     * @return HasMany
+     */
+    public function hasManyLocal(string $model, string $foreignKey = '', string $localKey = ''): HasMany
+    {
+        // 记录当前关联信息
+        $model      = $this->parseModel($model);
+        $localKey   = $localKey ?: $this->getPk();
+        $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
+
+        return new HasMany($this, $model, $foreignKey, $localKey);
+    }
 }
