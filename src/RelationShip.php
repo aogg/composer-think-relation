@@ -4,8 +4,6 @@ namespace aogg\think\relation;
 
 trait RelationShip {
 
-    use \think\model\concern\RelationShip;
-
     /**
      * HAS MANY 远程关联定义
      *
