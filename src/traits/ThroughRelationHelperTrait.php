@@ -80,6 +80,7 @@ trait ThroughRelationHelperTrait
     {
         return $this->through->getTable();
     }
+
     protected function joinOnWhere($type, $query)
     {
         $modelWhere = $this->getJoinOnString($type, $query);
@@ -89,6 +90,7 @@ trait ThroughRelationHelperTrait
             }
         }
     }
+    
     /**
      * @param $type
      * @param $query
