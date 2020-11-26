@@ -64,11 +64,37 @@ trait ThroughRelationActionTrait
         return !!$query->find();
     }
 
+    /**
+     * 删除 远程关联关系的数据
+     *
+     * @param null $moreWhere 更多where条件，可以数组或者匿名函数
+     * @return int
+     */
+    public function deleteInThrough($moreWhere = null)
+    {
+        $relationObject = $this;
+
+        $query = $relationObject->getThroughNewQuery()
+            ->alias($relationObject->through->getTable())
+            ->where($relationObject->getOriginForeignKey(), $this->getParent()->{$relationObject->getLocalKey()});
+        $relationObject->joinOnWhere('through', $query);
+
+        if (isset($moreWhere)) {
+            $query->where($moreWhere);
+        }
+        $query->alias(null); // delete不能加alias
+
+        /** @var object $query */
+        return $query->delete();
+    }
+
 
     /**
      * 分离式  远程关联关系insert
-     * 只保存through（中间表）的数据
-     * 字段可以是key=>value结构
+     * 1、只保存through（中间表）的数据
+     * 2、字段可以是key=>value结构
+     * 3、through（中间表）关联当前模型的字段会自动写入（$foreignKey）
+     * 4、支持自动写入时间
      *
      * @param array $save
      * @return $this
