@@ -19,7 +19,23 @@ use \think\helper\Str;
  */
 trait HasManyThroughTrait
 {
+    /**
+     * 自定义更多链表操作
+     *
+     * @var callable
+     */
+    protected $localQueryFunc;
 
+    /**
+     * @param mixed $localQueryFunc
+     * @return HasManyThroughTrait
+     */
+    public function setLocalQueryFunc($localQueryFunc)
+    {
+        $this->localQueryFunc = $localQueryFunc;
+
+        return $this;
+    }
 
     /**
      * 关联关系获取第一个model的数据
@@ -31,7 +47,7 @@ trait HasManyThroughTrait
      */
     protected function baseQuery($dataBool = false): void
     {
-        if (empty($this->baseQuery) && ($this->parent->getData() || $dataBool)) {
+        if (empty($this->baseQuery) && (!empty($this->parent->{$this->localKey}) || $dataBool)) {
             $modelTable        = (new $this->model)->getTable(); // 关联关系中第一个model的表名，主表
             $throughTable = $this->through->getTable();
             $throughPk           = $this->throughPk;
@@ -54,6 +70,8 @@ trait HasManyThroughTrait
                 )->where(1)
             ;
             $modelWhere = $this->joinOnWhere('model', $this->getQuery());
+
+            is_callable($this->localQueryFunc) && call_user_func($this->localQueryFunc, $this->getQuery());
 
             $this->baseQuery = true;
         }
@@ -99,7 +117,7 @@ trait HasManyThroughTrait
         $query      = $query ?: $this->parent->db()->alias($parentTable);
         /** @var \think\db\Query $query */
 
-        return $query->join(
+        $query = $query->join(
             $throughTable, $throughTable . '.' . $this->foreignKey . '=' . $parentTable . '.' . $this->localKey .
             $this->getJoinOnString('through', $this->getQuery()),
             $joinType
@@ -121,6 +139,10 @@ trait HasManyThroughTrait
                 $query->where($where);
             })
             ->field($fields);
+
+        is_callable($this->localQueryFunc) && call_user_func($this->localQueryFunc, $query);
+
+        return $query;
     }
 
 
