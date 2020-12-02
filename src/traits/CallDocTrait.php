@@ -8,7 +8,6 @@ namespace aogg\think\relation\traits;
 
 /**
  * @mixin \think\db\Query
- * @mixin \think\Model
  */
 trait CallDocTrait
 {
