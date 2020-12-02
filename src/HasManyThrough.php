@@ -13,6 +13,7 @@ class HasManyThrough extends \think\model\relation\HasManyThrough
     use traits\ThroughRelationHelperTrait,
         traits\HasManyThroughTrait,
         traits\ThroughRelationActionTrait;
+    use \aogg\think\relation\traits\CallDocTrait;
 
 
 }

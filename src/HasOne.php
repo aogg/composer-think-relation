@@ -10,6 +10,7 @@ namespace aogg\think\relation;
 class HasOne extends \think\model\relation\HasOne
 {
     use \aogg\think\relation\traits\HasRelationHelperTrait;
+    use \aogg\think\relation\traits\CallDocTrait;
 
 
 

@@ -10,6 +10,7 @@ namespace aogg\think\relation;
 class HasMany extends \think\model\relation\HasMany
 {
     use \aogg\think\relation\traits\HasRelationHelperTrait;
+    use \aogg\think\relation\traits\CallDocTrait;
 
     /**
      * 检测列表是否包含某个值

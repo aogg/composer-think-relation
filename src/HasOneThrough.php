@@ -13,5 +13,6 @@ class HasOneThrough extends \think\model\relation\HasOneThrough
     use traits\ThroughRelationHelperTrait,
         traits\HasManyThroughTrait,
         traits\ThroughRelationActionTrait;
+    use \aogg\think\relation\traits\CallDocTrait;
 
 }

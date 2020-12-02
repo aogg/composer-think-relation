@@ -15,10 +15,10 @@ trait HasRelationHelperTrait
      * 不存在时才创建数据
      * 将where数据转为create数据
      *
-     * @param $save
+     * @param array $save
      * @return \think\Model|null
      */
-    public function createOnNotExistsWhere($save)
+    public function createOnNotExistsWhere($save = [])
     {
         $query = $this->getQuery();
 
@@ -49,10 +49,10 @@ trait HasRelationHelperTrait
      * 创建数据
      * 将where数据转为create数据
      *
-     * @param $save
+     * @param array $save
      * @return \think\Model|null
      */
-    public function createOnWhere($save)
+    public function createOnWhere($save = [])
     {
         $query = $this->getQuery();
 
